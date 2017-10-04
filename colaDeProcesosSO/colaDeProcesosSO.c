@@ -100,6 +100,8 @@ función del cálculo que se hace en la función pedir proceso)
 Retorna: void
 */
 void colaDeProcesos(int anchoColumnas[], cola *nombre, cola *id, cola *actividad, cola *tiempo){
+	char nom[32], ids[32];
+	int t;
 	cola nombreFinalizado, idFinalizado, actividadFinalizado, tiempoFinalizado;
 	elemento e1;
 	int i, j, desplazamiento = 0, tiempoTotal = 0, tiempoEjecucion = 0;
@@ -107,38 +109,72 @@ void colaDeProcesos(int anchoColumnas[], cola *nombre, cola *id, cola *actividad
 	Initialize(&idFinalizado);
 	Initialize(&actividadFinalizado);
 	Initialize(&tiempoFinalizado);
+	i = 0;
 	while(Empty(tiempo) == FALSE){ //Mientras la cola tiempo (aunque podría ser cualquiera de las que se recibieron, ya que tienen el mismo tamaño)
 		letreros();				   //no este vacía
 		dibujarTabla(anchoColumnas, nombre, id, actividad, tiempo, 10, "ejecucion", 1);//Dibuja la tabla que contiene al proceso en ejecución
-		dibujarTabla(anchoColumnas, &nombreFinalizado, &idFinalizado, &actividadFinalizado, &tiempoFinalizado, 19, "finalizados", Size(&nombreFinalizado));
-		
+		//dibujarTabla(anchoColumnas, &nombreFinalizado, &idFinalizado, &actividadFinalizado, &tiempoFinalizado, 19, "finalizados", Size(&nombreFinalizado));
 		while(Empty(tiempo) == FALSE){ //Algoritmo de encolado y desencolado para paso de cola de espera a ejecución cuando transcurre un quantum
 			cleanScreen();
 			letreros();
 			dibujarTabla(anchoColumnas, nombre, id, actividad, tiempo, 10, "ejecucion", 1);//Dibuja la tabla que contiene al proceso en ejecución
-			dibujarTabla(anchoColumnas, &nombreFinalizado, &idFinalizado, &actividadFinalizado, &tiempoFinalizado, 19, "finalizados", Size(&nombreFinalizado));
+			dibujarTabla(anchoColumnas, &nombreFinalizado, &idFinalizado, &actividadFinalizado, &tiempoFinalizado, 28, "finalizados", Size(&nombreFinalizado));
+			if(i != 0){
+				e1 = Element(nombre, Size(tiempo));
+				strcpy(nom, e1.array);
+				e1 = Element(id, Size(tiempo));
+				strcpy(ids, e1.array);
+				e1 = Element(tiempo, Size(tiempo));
+				t = e1.n;
+				imprimir("Ultimo proceso Ejecutado: ", 14); 
+				gotoxy(0,15);
+				printf("Nombre = %s \t ID = %s \tTiempo para que finalice = %d", nom, ids, t);
+				imprimir("Proximo proceso a ejecutarse: ", 18);
+				if(Size(nombre) > 1){
+					e1 = Element(nombre, 2);
+					strcpy(nom, e1.array);
+					e1 = Element(id, 2);
+					strcpy(ids, e1.array);
+					e1 = Element(tiempo, 2);
+					t = e1.n;
+				}
+				else{
+					e1 = Front(nombre);
+					strcpy(nom, e1.array);
+					e1 = Front(id);
+					strcpy(ids, e1.array);
+					e1 = Front(tiempo);
+					t = e1.n;
+				}
+				gotoxy(0,19);
+				printf("Nombre = %s \t ID = %s \tTiempo para que finalice = %d", nom, ids, t);
+			}
 			e1 = Dequeue(tiempo);
 			gotoxy(72,10);
 			printf("%ds", e1.n);
 			delay_ms(1000);
-			if(e1.n > 0){
+			if(e1.n > 0){ //Si el tiempo de ese proceso aun no acaba (t == 0 es el criterio de finalización)
 				e1.n--;
-				Queue(tiempo, e1);
-				Queue(nombre, Dequeue(nombre));
+				Queue(tiempo, e1); //Encola el nuevo tiempo
+				Queue(nombre, Dequeue(nombre)); //Encola (lleva al final) el nombre que se encontraba al principio
 				Queue(id, Dequeue(id));
 				Queue(actividad, Dequeue(actividad));
 			}
 			else{
 				e1.n = tiempoEjecucion;
-				Queue(&tiempoFinalizado, e1);
-				Queue(&nombreFinalizado, Dequeue(nombre));
+				Queue(&tiempoFinalizado, e1); //Se encola el tiempoEjecucion de ese proceso en tiempoFinalizado
+				Queue(&nombreFinalizado, Dequeue(nombre)); //Se desencola el nombre de la cola de ejecución y se encola en finalizado
 				Queue(&idFinalizado, Dequeue(id));
 				Queue(&actividadFinalizado, Dequeue(actividad));
 				break;
 			}
 			tiempoEjecucion++;
+			i++;
 		}
-		dibujarTabla(anchoColumnas, &nombreFinalizado, &idFinalizado, &actividadFinalizado, &tiempoFinalizado, 19, "finalizados", Size(&nombreFinalizado));
+		//imprimir("Ultimo proceso Ejecutado: ", 14); 
+		//gotoxy(10,15);
+		//printf("Nombre = %s \t ID = %s \tTiempo para que finalice = %d", nom, ids, t);
+		dibujarTabla(anchoColumnas, &nombreFinalizado, &idFinalizado, &actividadFinalizado, &tiempoFinalizado, 28, "finalizados", Size(&nombreFinalizado));
 		if(Empty(nombre) == TRUE){ //Una vez que se vacía la cola de ejecución
 			printf("\n\tEl SO ha ejecutado todos los procesos en la cola. \n\tPresione cualquier tecla para continuar ...");
 			getchar();

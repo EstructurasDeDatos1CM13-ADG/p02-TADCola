@@ -17,6 +17,7 @@ COMPILACIÓN PARA GENERAR EL CÓDIGO OBJETO: gcc -c TADColaEst.c
 
 //LIBRERAS
 #include "lib\TADColaEst.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 //DEFINICIÓN DE FUNCIONES
