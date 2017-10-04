@@ -1,7 +1,10 @@
 /************************************************************************
 * PROGRAMA: coladeProcesosSO.c                                          *
-* AUTOR: Alanís Ramírez Damián                                          *
-* VERSIÓN: 1.2                                                          *
+* AUTORES:                                                              *
+* - Alanís Ramírez Damián                                               *                       
+* - Mendieta Torres Alfonso Ulises                                      *
+* - Oledo Enriquez Gilberto Irving                                      * 
+* VERSIÓN: 1.3                                                          *
 *                                                                       *
 * DESCRIPCIÓN: Programa que simula la cola de procesos de un SO monopro-*
 * cesador, en la cual existen procesos con su nombre, ID, descripción y *
