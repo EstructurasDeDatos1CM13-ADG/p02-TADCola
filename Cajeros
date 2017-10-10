@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <windows.h>
 #include "TADColaEst.h"
+#include "dibujarCajas.h"
 
-void gotoxy(int x, int y); // Funcion para imprimir en una cierta posición
 int vacio(int q);
 
 #define Tiempobase 10 //Tiempo base base del problema
 #define impresion 20 // cada 20 se imprimira los nuevo usuarios
-int cerrar = 2000;
 
 void main()
 {
-	elemento e;
+	elemento e, e1, e2;
 	cola preferentes;
 	Initialize(&preferentes);
 	cola usuarios;
@@ -21,25 +20,30 @@ void main()
 	int i, cajeras, Tiempocliente[3];
 	unsigned int base_time = 0;
 
+
+
 //Número de cajeros que atienden
-	printf("Ingrese el numero de cajeros");
-	scanf("%d", &cajeras);
+	system("cls");
+	cajeras = pedirDatos();
+
+	system("cls");
+	// 0 = Clientes, 1 = Usuarios, 2 = Preferentes;
+	printf("Ingrese el tiempo de llegada de clientes (s): ");
+	scanf("%d", &Tiempocliente[0]);
+
+	printf("Ingrese el tiempo de llegada de usuarios (s): ");
+	scanf("%d", &Tiempocliente[1]);
+
+	printf("Ingrese el tiempo de llegada de preferentes (s): ");
+	scanf("%d", &Tiempocliente[2]);
 
 	int Tiempocajero[cajeras];
 	int cajerovacio[cajeras];
-for (int i = 0; i < cajeras; ++i)
+
+/*for (i = 0; i < cajeras; ++i)
 {
 	cajerovacio[i] = 0;
-}
-	// 0 = Clientes, 1 = Usuarios, 2 = Preferentes;
-	printf("Ingrese el tiempo de llegada de clientes");
-	scanf("%d", &Tiempocliente[0]);
-
-	printf("Ingrese el tiempo de llegada de usuarios");
-	scanf("%d", &Tiempocliente[1]);
-
-	printf("Ingrese el tiempo de llegada de preferentes");
-	scanf("%d", &Tiempocliente[2]);
+}*/   //A eliminar
 
 	int c = 0, p = 0, u = 0;		//auxiliares para clientes
 	int Pa = 0, Ua = 0;				//auxiliares para clientes
@@ -47,15 +51,14 @@ for (int i = 0; i < cajeras; ++i)
  //Inicializamos cajeros y pedimos el tiempo de cada uno
 	for(i=0; i < cajeras; i++)
 	{
-		printf("Ingrese el tiempo del cajero %d", i);
+		printf("Ingrese el tiempo del cajero %d", i+1);
 		scanf("%d", &Tiempocajero[i]);
 	}
 
-e.tipoP = 0;
-e.tipoU = 0;
-e.tipoC = 0;
 	system("cls");
+	Cajas(cajeras);
 	while(1){
+	
 		Sleep(Tiempobase);
 		base_time++;
 
@@ -67,29 +70,30 @@ e.tipoC = 0;
 				cajerovacio[i] = 0;
 				if(Pa < 3 && !Empty(&preferentes))
 				{
-					e = Dequeue(&preferentes);
+					e1 = Dequeue(&preferentes);
 					Pa++;
-					cajerovacio[i] = e.n;
-					gotoxy(50,20);
-					printf("P%d", e.tipoP);
+					cajerovacio[i] = e1.n;
+					PasarAcaja(i);
+					printf("P%d", e1.tipoP);
 				}
 				else
 					if((!Empty(&usuarios) && Ua < 2) || (!Empty(&usuarios) && vacio(cajerovacio[i]) == 1))
 					{
-						e = Dequeue(&usuarios);
+						e1 = Dequeue(&usuarios);
 						Ua++;
-						gotoxy(50,20);
-						printf("U%d", e.tipoU);
+						cajerovacio[i] = e1.n;
+						PasarAcaja(i);
+						printf("U%d", e1.tipoU);
 					}
-				if (!Empty(&clientes) && Pa+Ua == 5)
-					{
-						e = Dequeue(&clientes);
-						gotoxy(50,20);
-						printf("C%d", e.tipoC);
-						Pa = 0;
-						Ua = 0;
-						Sleep(Tiempocajero[i]);
-					}
+					else
+						if ((!Empty(&clientes) && Pa+Ua == 5) || (!Empty(&clientes) && vacio(cajerovacio[i]) == 1))
+						{
+							e1 = Dequeue(&clientes);
+							PasarAcaja(i);
+							printf("C%d", e1.tipoC);
+							Pa = 0;
+							Ua = 0;
+						}
 			}
 		}
 		// Tiempocliente[0] = Clientes, Tiempocliente[1] = Usuarios, Tiempocliente[2] = Preferentes;
@@ -121,51 +125,32 @@ e.tipoC = 0;
 
 		//impresion de las colas
 		if(base_time % impresion == 0)
-		{
-			for(i=1; i<=Size(&preferentes); i++)
-				{
-					if (e.tipoP<=20)
-					{
-						gotoxy(10,10+p);
-						printf("%d", e.tipoP);
-					}
-					else
-						gotoxy(10,10+20);
-						printf("Y %d mas", (e.tipoP-20));
-				}
-			for(i=1; i<=Size(&usuarios); i++)
+		{	
+			for(i=1; i <= Size(&preferentes); i++)
 			{
-				if (e.tipoU<=20)
-				{
-					gotoxy(35,10+u);
-					printf("%d", e.tipoU);
-				}
-				else
-					gotoxy(35,10+20);
-					printf("Y %d mas", (e.tipoU-20));
+				e2 = Element(&preferentes, i);
+				gotoxy(40,20+i);
+				printf("P%d", e2.tipoP);
 			}
-			for(i=1; i<=Size(&clientes); i++)
-				{
-					if (e.tipoC<=20)
-					{
-						gotoxy(25,10+c);
-						printf("%d", e.tipoC);
-					}
-					else
-						gotoxy(25,10+20);
-						printf("Y %d mas", (e.tipoC-20));
-				}
+
+			for(i=1; i <= Size(&usuarios); i++)
+			{
+				e2 = Element(&usuarios, i);
+				gotoxy(25,20+i);
+				printf("U%d", e2.tipoU);
+			}
+
+			for(i=1; i <= Size(&clientes); i++)
+			{
+				e2 = Element(&clientes, i);
+				gotoxy(10,20+i);
+				printf("C%d", e2.tipoC);
+			}
 		}
 	}
 	return;
 }
-void gotoxy(int x, int y) 
-{
-	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD position = { x, y }; 
-	SetConsoleCursorPosition( hStdout, position );
-	return;
-};
+
 int vacio(int q)
 {
 	int band1;
